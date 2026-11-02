@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DineDesk Demo — Smash N Stack Burgers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coal:#131009; --coal2:#1B1710; --coal3:#26201732; --panel:#1E1911; --line:#33291A;
+  --bone:#F2EAD8; --dim:#AB9D83; --faint:#6E6350;
+  --paper:#FAF5EA; --paper2:#F0E7D3; --ink:#1C1710; --inkdim:#6E6350;
+  --red:#D63A1F; --reddeep:#A82A12; --amber:#E9A13B; --green:#43A668; --gold:#C99B3F;
+  --ease:cubic-bezier(.32,.72,0,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--coal);color:var(--bone);font-family:"Hind Siliguri",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+::selection{background:var(--red);color:#fff}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:20px;padding:14px 28px;background:rgba(19,16,9,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.wordmark{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:24px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.wordmark .sq{width:11px;height:11px;background:var(--red);flex:none}
+.wordmark small{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:10px;letter-spacing:.18em;color:var(--dim);margin-top:5px}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);padding:4px;border-radius:999px;margin:0 auto}
+.tab{padding:9px 20px;border-radius:999px;font-size:15px;font-weight:600;color:var(--dim);transition:all .25s var(--ease);white-space:nowrap}
+.tab .bn{font-weight:400;font-size:13px;opacity:.75}
+.tab:hover{color:var(--bone)}
+.tab.on{background:var(--bone);color:var(--ink)}
+.tab .dot{display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--red);margin-left:7px;vertical-align:2px;opacity:0;transition:opacity .3s}
+.tab .dot.show{opacity:1}
+.topmeta{display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--dim);white-space:nowrap}
+.topmeta .rname{color:var(--bone);font-weight:600}
+.clock{font-family:"IBM Plex Mono",monospace;font-size:13px}
+.demopill{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;border:1px solid var(--gold);color:var(--gold);padding:4px 9px;border-radius:99px}
+.hintbar{padding:10px 28px;font-size:14px;color:var(--dim);border-bottom:1px solid var(--line);background:var(--coal2)}
+.hintbar b{color:var(--amber);font-weight:600}
+main{max-width:1280px;margin:0 auto;padding:30px 28px 70px}
+.view{display:none}
+.view.on{display:block;animation:vin .35s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- guest / phone ---------- */
+.gueststage{display:flex;gap:44px;align-items:flex-start;justify-content:center}
+.guest-side{max-width:340px;padding-top:26px}
+.guest-side h2{font-family:"Bricolage Grotesque",sans-serif;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em}
+.guest-side h2 em{font-style:normal;color:var(--red)}
+.guest-side p{color:var(--dim);font-size:15.5px;line-height:1.55;margin-top:14px}
+.guest-side .qrbox{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;gap:16px;align-items:center}
+.guest-side .qrbox img{width:86px;height:86px;border-radius:8px}
+.guest-side .qrbox .t1{font-weight:600;font-size:15px}
+.guest-side .qrbox .t2{color:var(--dim);font-size:13px;line-height:1.45;margin-top:3px}
+.steps{margin-top:26px;display:grid;gap:12px}
+.step{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--dim);line-height:1.45}
+.step b{color:var(--bone)}
+.step .n{flex:none;width:24px;height:24px;border:1px solid var(--line);border-radius:99px;display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--amber)}
+.phonewrap{flex:none}
+.phone{width:392px;height:800px;background:#0A0806;border:1px solid #3A311F;border-radius:46px;padding:10px;box-shadow:0 40px 80px rgba(0,0,0,.55),0 4px 18px rgba(0,0,0,.5)}
+.screen{position:relative;height:100%;background:var(--paper);color:var(--ink);border-radius:37px;overflow:hidden;display:flex;flex-direction:column}
+.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:104px;height:24px;background:#0A0806;border-radius:99px;z-index:30}
+.pscroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.pscroll::-webkit-scrollbar{display:none}
+.g-head{padding:44px 20px 0}
+.g-rest{display:flex;justify-content:space-between;align-items:flex-start}
+.g-rest .rn{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:27px;letter-spacing:-.01em;line-height:1}
+.g-rest .rn span{color:var(--red)}
+.g-rest .rl{font-size:12.5px;color:var(--inkdim);margin-top:4px}
+.tablechip{flex:none;text-align:right}
+.tablechip .tb{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12.5px;background:var(--ink);color:var(--paper);padding:6px 10px;border-radius:8px;white-space:nowrap}
+.tablechip .sc{font-size:11.5px;color:var(--inkdim);margin-top:5px;white-space:nowrap}
+.g-rest>div:first-child{min-width:0}
+.hero{margin:16px 20px 0;border-radius:18px;overflow:hidden;position:relative}
+.hero img{width:100%;height:172px;object-fit:cover}
+.hero .htag{position:absolute;left:12px;bottom:12px;background:rgba(19,16,9,.88);color:var(--bone);font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:99px}
+.hero .htag b{color:var(--amber)}
+.sessionline{margin:14px 20px 0;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--inkdim)}
+.sessionline .pulse{width:8px;height:8px;border-radius:99px;background:var(--green);flex:none}
+.tracker{margin:14px 20px 0;background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:15px 16px;display:none}
+.tracker.show{display:block;animation:vin .35s var(--ease)}
+.tracker .tt{font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.tracker .tt .oid{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--inkdim);font-weight:500}
+.tsteps{display:flex;align-items:center;margin-top:13px}
+.tstep{flex:1;text-align:center;position:relative}
+.tstep .td{width:13px;height:13px;border-radius:99px;border:2.5px solid #CBBFA3;background:#fff;margin:0 auto;position:relative;z-index:2;transition:all .3s}
+.tstep:not(:last-child)::after{content:"";position:absolute;top:6px;left:calc(50% + 9px);right:calc(-50% + 9px);height:2.5px;background:#E2D7BE;z-index:1}
+.tstep.done .td{background:var(--green);border-color:var(--green)}
+.tstep.now .td{background:var(--red);border-color:var(--red);box-shadow:0 0 0 5px rgba(214,58,31,.16)}
+.tstep .tl{font-size:11px;color:var(--inkdim);margin-top:6px;font-weight:500}
+.tstep.now .tl{color:var(--ink);font-weight:700}
+.cats{position:sticky;top:0;z-index:5;display:flex;gap:8px;padding:14px 20px 10px;background:linear-gradient(var(--paper) 82%,transparent)}
+.catchip{flex:none;padding:8px 15px;border-radius:99px;border:1.5px solid #D9CCAC;font-size:13.5px;font-weight:600;color:var(--inkdim);background:var(--paper);transition:all .2s}
+.catchip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.msec{padding:8px 20px 4px}
+.msec h3{font-family:"Bricolage Grotesque",sans-serif;font-size:19px;font-weight:700}
+.msec h3 .bn{font-family:"Hind Siliguri",sans-serif;font-size:14px;color:var(--red);font-weight:600;margin-left:6px}
+.mitem{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid #E7DCC2;align-items:center}
+.mitem img{width:66px;height:66px;border-radius:12px;object-fit:cover;flex:none}
+.mitem .mi{flex:1;min-width:0}
+.mitem .mn{font-weight:600;font-size:15.5px;line-height:1.25}
+.mitem .mn .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;background:#F6E3D8;color:var(--reddeep);padding:2.5px 6px;border-radius:5px;vertical-align:2px;margin-left:6px;font-weight:600}
+.mitem .md{font-size:12.5px;color:var(--inkdim);line-height:1.4;margin-top:2px}
+.mitem .mp{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:14.5px;margin-top:5px}
+.addbtn{flex:none;min-width:74px;height:40px;padding:0 14px;border-radius:11px;background:var(--red);color:#fff;font-weight:700;font-size:14px;transition:transform .15s var(--ease),background .2s}
+.addbtn:active{transform:scale(.94)}
+.stepper{flex:none;display:flex;align-items:center;gap:2px;background:var(--ink);border-radius:11px;padding:3px}
+.stepper button{width:34px;height:34px;color:var(--paper);font-size:18px;font-weight:600;display:grid;place-items:center}
+.stepper .qv{color:#fff;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:14.5px;min-width:20px;text-align:center}
+.gfoot{padding:6px 20px 34px;font-size:12px;color:var(--inkdim);text-align:center;line-height:1.5}
+.cartbar{flex:none;margin:0 14px 14px;background:var(--ink);color:var(--paper);border-radius:16px;padding:13px 16px;display:none;align-items:center;justify-content:space-between;box-shadow:0 14px 30px rgba(28,23,16,.35);cursor:pointer;transition:transform .2s var(--ease)}
+.cartbar.show{display:flex;animation:vin .3s var(--ease)}
+.cartbar:active{transform:scale(.98)}
+.cartbar .cl{font-size:13px;color:#CBBFA3}
+.cartbar .ct{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:16px}
+.cartbar .cb{background:var(--red);color:#fff;font-weight:700;font-size:14px;padding:9px 15px;border-radius:10px}
+.sheetwrap{position:absolute;inset:0;z-index:40;display:none}
+.sheetwrap.open{display:block}
+.sheetbg{position:absolute;inset:0;background:rgba(19,16,9,.5);backdrop-filter:blur(2px)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-radius:24px 24px 0 0;padding:20px 20px 26px;animation:sheetup .38s var(--ease);max-height:86%;overflow-y:auto}
+@keyframes sheetup{from{transform:translateY(46px);opacity:.4}to{transform:none;opacity:1}}
+.sheet h4{font-family:"Bricolage Grotesque",sans-serif;font-size:20px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.sheet h4 .x{width:32px;height:32px;border-radius:99px;background:var(--paper2);display:grid;place-items:center;font-size:15px;color:var(--ink)}
+.cline{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px dashed #DCD0B0}
+.cline .cn{flex:1;font-size:14.5px;font-weight:500}
+.cline .cp{font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-weight:600}
+.mstep{display:flex;align-items:center;gap:2px;border:1.5px solid #D9CCAC;border-radius:9px;padding:2px}
+.mstep button{width:28px;height:28px;font-size:16px;font-weight:600;display:grid;place-items:center;color:var(--ink)}
+.mstep .qv{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;min-width:17px;text-align:center}
+.notein{width:100%;margin-top:14px;border:1.5px solid #D9CCAC;border-radius:11px;background:#fff;padding:11px 13px;font-family:inherit;font-size:14px;color:var(--ink);outline:none}
+.notein:focus{border-color:var(--ink)}
+.totrows{margin-top:14px;font-size:14px}
+.totrows .tr{display:flex;justify-content:space-between;padding:4px 0;color:var(--inkdim)}
+.totrows .tr.grand{border-top:1.5px solid var(--ink);margin-top:7px;padding-top:10px;color:var(--ink);font-weight:700;font-size:16.5px}
+.totrows .mono{font-family:"IBM Plex Mono",monospace;font-weight:600}
+.placebtn{width:100%;margin-top:16px;background:var(--red);color:#fff;font-weight:700;font-size:16.5px;padding:16px;border-radius:14px;transition:transform .15s var(--ease)}
+.placebtn:active{transform:scale(.98)}
+.tickwrap{display:none;text-align:center;padding:8px 0 2px}
+.tickwrap.show{display:block}
+.tickwrap svg{width:74px;height:74px;margin:4px auto 8px}
+.tickwrap .circ{stroke:var(--green);stroke-width:2.5;fill:none;stroke-dasharray:290;stroke-dashoffset:290;animation:draw 0.7s var(--ease) forwards}
+.tickwrap .tick{stroke:var(--green);stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw 0.45s var(--ease) .5s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.tickwrap .tt1{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:19px}
+.tickwrap .tt2{color:var(--inkdim);font-size:13.5px;margin-top:3px}
+
+/* ---------- kitchen ---------- */
+.kstats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.kstat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 20px;min-width:150px}
+.kstat .kv{font-family:"Bricolage Grotesque",sans-serif;font-size:29px;font-weight:800;line-height:1}
+.kstat .kl{font-size:12.5px;color:var(--dim);margin-top:5px;letter-spacing:.02em}
+.kstat .kv.red{color:var(--red)} .kstat .kv.amber{color:var(--amber)} .kstat .kv.green{color:var(--green)}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(308px,1fr));gap:16px}
+.ocard{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.ocard.st-cooking{border-left-color:var(--red)}
+.ocard.st-ready{border-left-color:var(--green)}
+.ocard.fresh{animation:fresh 1.6s var(--ease)}
+@keyframes fresh{0%{box-shadow:0 0 0 0 rgba(233,161,59,.0);transform:translateY(-6px)}25%{box-shadow:0 0 0 3px rgba(233,161,59,.55)}100%{box-shadow:none;transform:none}}
+.ocard .oh{display:flex;justify-content:space-between;align-items:flex-start}
+.ocard .ot{font-family:"Bricolage Grotesque",sans-serif;font-size:25px;font-weight:800;line-height:1}
+.ocard .oid{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin-top:4px}
+.timer{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px;background:var(--coal2);border:1px solid var(--line);padding:6px 11px;border-radius:9px}
+.timer.warn{color:var(--amber);border-color:var(--amber)}
+.timer.late{color:#FF6B52;border-color:var(--red);animation:blink 1.4s infinite}
+@keyframes blink{50%{background:rgba(214,58,31,.16)}}
+.oitems{display:grid;gap:7px}
+.oitem{display:flex;gap:10px;font-size:15.5px;align-items:baseline}
+.oitem .q{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--amber);font-size:14px;flex:none}
+.onote{font-size:13.5px;color:var(--dim);background:var(--coal2);border:1px dashed var(--line);border-radius:9px;padding:8px 11px}
+.onote b{color:var(--amber);font-weight:600}
+.oact{margin-top:auto;width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:15.5px;transition:transform .15s var(--ease),filter .2s}
+.oact:active{transform:scale(.98)}
+.oact:hover{filter:brightness(1.08)}
+.oact.accept{background:var(--red);color:#fff}
+.oact.readyb{background:var(--amber);color:#23180A}
+.oact.servedb{background:var(--green);color:#fff}
+.donestrip{margin-top:26px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.donestrip .dl{font-size:13px;color:var(--faint);font-family:"IBM Plex Mono",monospace;letter-spacing:.08em}
+.donechip{font-size:13px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:6px 12px}
+.donechip b{color:var(--green);font-weight:600}
+.emptyboard{border:1.5px dashed var(--line);border-radius:16px;padding:44px;text-align:center;color:var(--faint);font-size:15.5px;display:none}
+.emptyboard.show{display:block}
+
+/* ---------- cashier ---------- */
+.cashgrid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
+.tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px}
+.ttile{background:var(--panel);border:1.5px solid var(--line);border-radius:15px;padding:15px 14px;text-align:left;transition:all .2s var(--ease);position:relative}
+.ttile:hover{border-color:var(--faint)}
+.ttile.sel{border-color:var(--bone);background:var(--coal2)}
+.ttile .tn{font-family:"Bricolage Grotesque",sans-serif;font-size:24px;font-weight:800;line-height:1}
+.ttile .ts{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:6px;color:var(--dim)}
+.ttile .ts .d{width:8px;height:8px;border-radius:99px;background:var(--faint);flex:none}
+.ttile[data-st="ordering"] .ts .d{background:var(--amber)}
+.ttile[data-st="ontable"] .ts .d{background:var(--green)}
+.ttile[data-st="you"] .ts .d{background:var(--red)}
+.ttile .tt2{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;margin-top:8px;color:var(--bone)}
+.ttile .tt2.zero{color:var(--faint);font-weight:500}
+.receipt{background:var(--paper);color:var(--ink);border-radius:8px;padding:24px 22px 20px;box-shadow:0 24px 50px rgba(0,0,0,.45);position:relative}
+.receipt::before,.receipt::after{content:"";position:absolute;left:0;right:0;height:8px;background:radial-gradient(circle at 8px -2px,transparent 7px,var(--paper) 7.5px)}
+.receipt::before{top:-7px;transform:rotate(180deg)}
+.receipt::after{bottom:-7px}
+.receipt .rh{text-align:center;border-bottom:1.5px dashed #C9BB97;padding-bottom:13px}
+.receipt .rh .rn2{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px}
+.receipt .rh .rn2 span{color:var(--red)}
+.receipt .rh .rs{font-size:12px;color:var(--inkdim);margin-top:2px}
+.receipt .rt{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--inkdim);margin-top:11px}
+.rline{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;padding:7px 0;border-bottom:1px dotted #D8CCA9}
+.rline .rq{color:var(--inkdim);font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.rline .rp{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:13.5px;white-space:nowrap}
+.rtot{margin-top:12px;font-size:14px}
+.rtot .tr2{display:flex;justify-content:space-between;padding:3.5px 0;color:var(--inkdim)}
+.rtot .tr2 .mono{font-family:"IBM Plex Mono",monospace;font-weight:600}
+.rtot .grand{display:flex;justify-content:space-between;border-top:1.5px solid var(--ink);margin-top:8px;padding-top:10px;font-weight:700;font-size:18px}
+.rtot .grand .mono{font-family:"IBM Plex Mono",monospace}
+.payrow{display:flex;gap:8px;margin-top:16px}
+.paychip{flex:1;padding:10px 4px;border:1.5px solid #D9CCAC;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--inkdim);text-align:center;transition:all .2s}
+.paychip.on{border-color:var(--ink);color:var(--ink);background:#fff}
+.closebtn{width:100%;margin-top:12px;background:var(--red);color:#fff;font-weight:700;font-size:16px;padding:15px;border-radius:12px;transition:transform .15s var(--ease)}
+.closebtn:active{transform:scale(.98)}
+.closebtn:disabled{background:#CBBFA3;cursor:not-allowed}
+.qrpay{margin-top:16px;border-top:1.5px dashed #C9BB97;padding-top:13px;display:flex;gap:13px;align-items:center}
+.qrpay img{width:64px;height:64px}
+.qrpay .qt{font-size:12.5px;color:var(--inkdim);line-height:1.45}
+.qrpay .qt b{color:var(--ink);font-size:13.5px}
+.nobill{text-align:center;color:var(--inkdim);font-size:14.5px;padding:26px 6px 10px;line-height:1.55}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:var(--bone);color:var(--ink);font-weight:600;font-size:15px;padding:13px 22px;border-radius:99px;box-shadow:0 18px 40px rgba(0,0,0,.5);z-index:100;transition:transform .4s var(--ease);display:flex;gap:9px;align-items:center;max-width:92vw}
+.toast.show{transform:translate(-50%,0)}
+.toast .tdot{width:9px;height:9px;border-radius:99px;background:var(--green);flex:none}
+.footline{max-width:1280px;margin:0 auto;padding:0 28px 30px;color:var(--faint);font-size:12.5px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+@media(max-width:1020px){
+  .gueststage{flex-direction:column;align-items:center}
+  .guest-side{max-width:560px;padding-top:0;order:2}
+  .cashgrid{grid-template-columns:1fr}
+  .topmeta .rname,.topmeta .clock{display:none}
+}
+@media(max-width:640px){
+  .topbar{padding:12px 14px;gap:10px;flex-wrap:wrap}
+  .tabs{order:3;width:100%;justify-content:space-between}
+  .tab{padding:9px 8px;font-size:13.5px;flex:1;text-align:center}
+  .tab .bn{display:none}
+  main{padding:20px 14px 56px}
+  .hintbar{padding:9px 14px}
+  .phone{width:100%;height:760px;border-radius:38px}
+  .screen{border-radius:30px}
+  .board{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wordmark"><span class="sq"></span>DineDesk <small>DEMO</small></div>
+  <nav class="tabs">
+    <button class="tab on" data-view="guest">Guest <span class="bn">অতিথি</span></button>
+    <button class="tab" data-view="kitchen">Kitchen <span class="bn">রান্নাঘর</span><span class="dot" id="kitchendot"></span></button>
+    <button class="tab" data-view="cashier">Cashier <span class="bn">ক্যাশিয়ার</span></button>
+  </nav>
+  <div class="topmeta">
+    <span class="rname">Smash N Stack Burgers</span>
+    <span class="clock" id="clock">--:--</span>
+    <span class="demopill">FAKE DATA</span>
+  </div>
+</header>
+<div class="hintbar" id="hintbar"></div>
+
+<main>
+  <!-- ================= GUEST ================= -->
+  <section class="view on" id="view-guest">
+    <div class="gueststage">
+      <div class="guest-side">
+        <h2>The guest never waits for a waiter to <em>order.</em></h2>
+        <p>Every table carries one of these codes. The guest scans, the menu opens, and the order goes straight to the kitchen screen. No app download, no account, no queue at the counter.</p>
+        <div class="qrbox">
+          <img src="assets/qr-table7.png" alt="QR code for Table 7 at Smash N Stack Burgers">
+          <div>
+            <div class="t1">Table 7 · টেবিল ৭</div>
+            <div class="t2">This is the real code printed on the table tent. In the live system it opens a staff-approved session, so a photo of it alone cannot order.</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><span class="n">1</span><div><b>Try it as the guest.</b> Add a burger and a shake in the phone, then place the order.</div></div>
+          <div class="step"><span class="n">2</span><div><b>Switch to the Kitchen tab.</b> Your order is already on the board. Accept it, mark it ready, serve it.</div></div>
+          <div class="step"><span class="n">3</span><div><b>Switch to Cashier.</b> Table 7's bill built itself. Close it and watch today's sales move.</div></div>
+        </div>
+      </div>
+      <div class="phonewrap">
+        <div class="phone">
+          <div class="screen">
+            <div class="notch"></div>
+            <div class="pscroll" id="pscroll">
+              <div class="g-head">
+                <div class="g-rest">
+                  <div>
+                    <div class="rn">Smash N <span>Stack</span></div>
+                    <div class="rl">Burgers · Gulshan 2, Dhaka</div>
+                  </div>
+                  <div class="tablechip">
+                    <span class="tb">TABLE 7 · টেবিল ৭</span>
+                    <div class="sc">Code 4821 · staff opened</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero">
+                <img src="assets/hero.jpg" alt="Signature smashed burger, photo from Unsplash">
+                <div class="htag">Open till <b>4:00 AM</b> · রাত ৪টা পর্যন্ত</div>
+              </div>
+              <div class="sessionline"><span class="pulse"></span> Session open for this table. Order when ready, pay at the counter or by bKash.</div>
+
+              <div class="tracker" id="tracker">
+                <div class="tt"><span id="tracker-title">Order confirmed</span><span class="oid" id="tracker-oid">#104</span></div>
+                <div class="tsteps">
+                  <div class="tstep" data-ts="new"><div class="td"></div><div class="tl">Received</div></div>
+                  <div class="tstep" data-ts="cooking"><div class="td"></div><div class="tl">Cooking</div></div>
+                  <div class="tstep" data-ts="ready"><div class="td"></div><div class="tl">Ready</div></div>
+                  <div class="tstep" data-ts="served"><div class="td"></div><div class="tl">Served</div></div>
+                </div>
+              </div>
+
+              <div class="cats" id="cats">
+                <button class="catchip on" data-cat="burgers">Burgers</button>
+                <button class="catchip" data-cat="sides">Sides</button>
+                <button class="catchip" data-cat="drinks">Shakes &amp; Drinks</button>
+              </div>
+
+              <div class="msec" id="sec-burgers">
+                <h3>Burgers <span class="bn">বার্গার</span></h3>
+                <div class="mitem">
+                  <img src="assets/hero.jpg" alt="Classic Smash burger">
+                  <div class="mi"><div class="mn">Classic Smash</div><div class="md">Double smashed patty, cheddar, pickles, house sauce</div><div class="mp">৳340</div></div>
+                  <span data-add="Classic Smash|340"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/smash.jpg" alt="Dhaka Fire Smash burger">
+                  <div class="mi"><div class="mn">Dhaka Fire Smash<span class="tag">SPICY</span></div><div class="md">Naga chilli glaze, jalapeño, pepper jack, cooling slaw</div><div class="mp">৳420</div></div>
+                  <span data-add="Dhaka Fire Smash|420"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/tower.jpg" alt="BBQ Stack Tower burger">
+                  <div class="mi"><div class="mn">BBQ Stack Tower</div><div class="md">Triple patty, beef bacon, onion rings, smoked BBQ sauce</div><div class="mp">৳560</div></div>
+                  <span data-add="BBQ Stack Tower|560"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/tray.jpg" alt="Shroom Melt burger with fries">
+                  <div class="mi"><div class="mn">Shroom Melt</div><div class="md">Grilled portobello, swiss, truffle mayo, brioche</div><div class="mp">৳390</div></div>
+                  <span data-add="Shroom Melt|390"></span>
+                </div>
+              </div>
+
+              <div class="msec" id="sec-sides">
+                <h3>Sides <span class="bn">সাইডস</span></h3>
+                <div class="mitem">
+                  <img src="assets/fries.jpg" alt="Loaded fries">
+                  <div class="mi"><div class="mn">Loaded Fries</div><div class="md">Cheese sauce, beef crumbs, spring onion, chilli dust</div><div class="mp">৳220</div></div>
+                  <span data-add="Loaded Fries|220"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/wings.jpg" alt="Peri peri wings">
+                  <div class="mi"><div class="mn">Peri Peri Wings · 6 pc</div><div class="md">Charred, peri peri rub, garlic dip</div><div class="mp">৳280</div></div>
+                  <span data-add="Peri Peri Wings (6)|280"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/meal.jpg" alt="Burger meal with onion rings">
+                  <div class="mi"><div class="mn">Onion Rings</div><div class="md">Beer-battered, smoked paprika salt</div><div class="mp">৳150</div></div>
+                  <span data-add="Onion Rings|150"></span>
+                </div>
+              </div>
+
+              <div class="msec" id="sec-drinks">
+                <h3>Shakes &amp; Drinks <span class="bn">পানীয়</span></h3>
+                <div class="mitem">
+                  <img src="assets/shake.jpg" alt="KitKat shake">
+                  <div class="mi"><div class="mn">KitKat Shake</div><div class="md">Chocolate, wafer crumble, vanilla soft serve</div><div class="mp">৳260</div></div>
+                  <span data-add="KitKat Shake|260"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/lemonade.jpg" alt="Mint lemonade">
+                  <div class="mi"><div class="mn">Mint Lemonade</div><div class="md">Fresh lemon, mint, soda, crushed ice</div><div class="mp">৳120</div></div>
+                  <span data-add="Mint Lemonade|120"></span>
+                </div>
+                <div class="mitem">
+                  <img src="assets/coffee.jpg" alt="Cold coffee">
+                  <div class="mi"><div class="mn">Cold Coffee</div><div class="md">Double shot, chilled milk, cocoa dust</div><div class="mp">৳180</div></div>
+                  <span data-add="Cold Coffee|180"></span>
+                </div>
+              </div>
+
+              <div class="gfoot">Prices include everything except 5% VAT, shown before you order.<br>Allergy or spice note? Add it on the order screen.</div>
+            </div>
+
+            <div class="cartbar" id="cartbar">
+              <div><div class="cl" id="cart-count">0 items</div><div class="ct" id="cart-total">৳0</div></div>
+              <button class="cb" id="cart-open">View order · অর্ডার দেখুন</button>
+            </div>
+
+            <div class="sheetwrap" id="sheetwrap">
+              <div class="sheetbg" id="sheetbg"></div>
+              <div class="sheet">
+                <div id="sheet-main">
+                  <h4>Your order · আপনার অর্ডার <button class="x" id="sheet-close" aria-label="Close">✕</button></h4>
+                  <div id="cart-lines"></div>
+                  <input class="notein" id="order-note" placeholder="Note for the kitchen · e.g. less spicy, no onion" maxlength="90">
+                  <div class="totrows">
+                    <div class="tr"><span>Subtotal</span><span class="mono" id="ct-sub">৳0</span></div>
+                    <div class="tr"><span>VAT 5%</span><span class="mono" id="ct-vat">৳0</span></div>
+                    <div class="tr grand"><span>Total</span><span class="mono" id="ct-grand">৳0</span></div>
+                  </div>
+                  <button class="placebtn" id="place-order">Place order · অর্ডার করুন</button>
+                </div>
+                <div class="tickwrap" id="tickwrap">
+                  <svg viewBox="0 0 100 100"><circle class="circ" cx="50" cy="50" r="46"></circle><path class="tick" d="M31 52 L45 66 L70 38"></path></svg>
+                  <div class="tt1">Order sent to the kitchen</div>
+                  <div class="tt2" id="tick-sub">Order #104 · Table 7. Watch it move in the Kitchen tab.</div>
+                  <button class="placebtn" id="tick-done" style="background:var(--ink)">Back to menu</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KITCHEN ================= -->
+  <section class="view" id="view-kitchen">
+    <div class="kstats">
+      <div class="kstat"><div class="kv red" id="ks-new">0</div><div class="kl">NEW · নতুন</div></div>
+      <div class="kstat"><div class="kv amber" id="ks-cooking">0</div><div class="kl">COOKING · রান্না হচ্ছে</div></div>
+      <div class="kstat"><div class="kv green" id="ks-ready">0</div><div class="kl">READY TO SERVE · তৈরি</div></div>
+      <div class="kstat"><div class="kv" id="ks-avg">7.4<span style="font-size:16px;color:var(--dim)"> min</span></div><div class="kl">AVG PREP TODAY</div></div>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="emptyboard" id="emptyboard">Board clear. Every order served.<br><span style="font-size:13.5px">Place a new one from the Guest tab and watch it land here.</span></div>
+    <div class="donestrip" id="donestrip"><span class="dl">SERVED THIS HOUR</span></div>
+  </section>
+
+  <!-- ================= CASHIER ================= -->
+  <section class="view" id="view-cashier">
+    <div class="kstats">
+      <div class="kstat"><div class="kv" id="cs-sales">৳18,450</div><div class="kl">SALES TODAY · আজকের বিক্রি</div></div>
+      <div class="kstat"><div class="kv" id="cs-orders">23</div><div class="kl">ORDERS TODAY</div></div>
+      <div class="kstat"><div class="kv" id="cs-occ">4<span style="font-size:16px;color:var(--dim)"> / 12</span></div><div class="kl">TABLES OCCUPIED</div></div>
+      <div class="kstat"><div class="kv green" id="cs-open">৳0</div><div class="kl">OPEN BILLS TOTAL</div></div>
+    </div>
+    <div class="cashgrid">
+      <div class="tables" id="tables"></div>
+      <div class="receipt" id="receipt"></div>
+    </div>
+  </section>
+</main>
+
+<div class="footline">
+  <span>DineDesk demo, built for Smash N Stack Burgers, Gulshan 2. Menu items and prices are illustrative; every number on this page is fake and resets on reload.</span>
+  <span>Photos: Unsplash · One product, three screens, one order.</span>
+</div>
+
+<div class="toast" id="toast"><span class="tdot"></span><span id="toast-msg"></span></div>
+
+<script>
+const VAT = 0.05;
+const fmt = n => '৳' + Math.round(n).toLocaleString('en-IN');
+const vatOf = sub => Math.round(sub * VAT);
+const subOf = lines => lines.reduce((s, l) => s + l[1] * l[2], 0);
+const T0 = Date.now();
+
+let nextId = 104;
+let orders = [
+  {id:103, table:5, status:'ready',   placedAt:T0-545000, note:'', items:[['BBQ Stack Tower',1,560],['Onion Rings',1,150],['Cold Coffee',1,180]]},
+  {id:102, table:3, status:'cooking', placedAt:T0-400000, note:'One burger with no onion', items:[['Classic Smash',2,340],['KitKat Shake',2,260]]},
+  {id:101, table:9, status:'new',     placedAt:T0-80000,  note:'', items:[['Dhaka Fire Smash',1,420],['Loaded Fries',1,220],['Mint Lemonade',2,120]]}
+];
+let servedLog = ['#100 · Table 4', '#99 · Table 11', '#98 · Table 2'];
+let tables = {};
+for (let i = 1; i <= 12; i++) tables[i] = {st:'free', bill:[]};
+tables[3]  = {st:'ontable',  bill:[['Classic Smash',1,340],['Loaded Fries',1,220],['Cold Coffee',2,180],['Mint Lemonade',1,120]]};
+tables[5]  = {st:'ontable',  bill:[['Peri Peri Wings (6)',1,280],['Shroom Melt',1,390],['KitKat Shake',1,260]]};
+tables[9]  = {st:'ordering', bill:[]};
+tables[11] = {st:'ontable',  bill:[['Classic Smash',1,340],['Onion Rings',1,150],['Mint Lemonade',1,120]]};
+tables[7]  = {st:'you',      bill:[]};
+
+let sales = 18450, ordersToday = 23;
+let cart = {};           // name -> {price, qty}
+let myOrderId = null, myOrderServed = false;
+let selTable = 7, payMethod = 'Cash';
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg){
+  $('#toast-msg').textContent = msg;
+  $('#toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3400);
+}
+
+/* ---------- tabs ---------- */
+const hints = {
+  guest:   '<b>You are the guest at Table 7.</b> Order from the phone. Nothing to install, this is what the QR code opens.',
+  kitchen: '<b>You are the kitchen.</b> Every order from every table lands here the second it is placed. Work the board top to bottom.',
+  cashier: '<b>You are the cashier.</b> Pick a table, the bill is already built from what the kitchen served. Close it and the table frees itself.'
+};
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  $$('.tab').forEach(x => x.classList.remove('on'));
+  t.classList.add('on');
+  $$('.view').forEach(v => v.classList.remove('on'));
+  $('#view-' + t.dataset.view).classList.add('on');
+  $('#hintbar').innerHTML = hints[t.dataset.view];
+  if (t.dataset.view === 'kitchen') $('#kitchendot').classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}));
+$('#hintbar').innerHTML = hints.guest;
+
+/* ---------- guest: menu + cart ---------- */
+function renderAddZones(){
+  $$('[data-add]').forEach(zone => {
+    const [name, price] = zone.dataset.add.split('|');
+    const q = cart[name] ? cart[name].qty : 0;
+    if (q === 0) {
+      zone.innerHTML = '<button class="addbtn" data-act="add" data-name="' + name + '" data-price="' + price + '">ADD +</button>';
+    } else {
+      zone.innerHTML = '<span class="stepper"><button data-act="dec" data-name="' + name + '">−</button><span class="qv">' + q + '</span><button data-act="inc" data-name="' + name + '">+</button></span>';
+    }
+  });
+}
+function cartCount(){ return Object.values(cart).reduce((s, i) => s + i.qty, 0); }
+function cartSub(){ return Object.values(cart).reduce((s, i) => s + i.qty * i.price, 0); }
+function renderCart(){
+  renderAddZones();
+  const n = cartCount(), sub = cartSub();
+  $('#cartbar').classList.toggle('show', n > 0);
+  $('#cart-count').textContent = n + (n === 1 ? ' item' : ' items');
+  $('#cart-total').textContent = fmt(sub + vatOf(sub));
+  const lines = Object.entries(cart);
+  $('#cart-lines').innerHTML = lines.length ? lines.map(([name, i]) =>
+    '<div class="cline"><span class="cn">' + name + '</span>' +
+    '<span class="mstep"><button data-act="dec" data-name="' + name + '">−</button><span class="qv">' + i.qty + '</span><button data-act="inc" data-name="' + name + '">+</button></span>' +
+    '<span class="cp">' + fmt(i.qty * i.price) + '</span></div>').join('')
+    : '<div style="padding:16px 0;color:var(--inkdim);font-size:14.5px">Your order is empty. Add something tasty from the menu.</div>';
+  $('#ct-sub').textContent = fmt(sub);
+  $('#ct-vat').textContent = fmt(vatOf(sub));
+  $('#ct-grand').textContent = fmt(sub + vatOf(sub));
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const name = b.dataset.name;
+  if (b.dataset.act === 'add') cart[name] = {price:+b.dataset.price, qty:1};
+  if (b.dataset.act === 'inc') cart[name].qty++;
+  if (b.dataset.act === 'dec') { cart[name].qty--; if (cart[name].qty <= 0) delete cart[name]; }
+  renderCart();
+});
+$('#cart-open').addEventListener('click', () => { $('#sheet-main').style.display = 'block'; $('#tickwrap').classList.remove('show'); $('#sheetwrap').classList.add('open'); });
+function closeSheet(){ $('#sheetwrap').classList.remove('open'); }
+$('#sheetbg').addEventListener('click', closeSheet);
+$('#sheet-close').addEventListener('click', closeSheet);
+$('#tick-done').addEventListener('click', closeSheet);
+
+$('#place-order').addEventListener('click', () => {
+  if (cartCount() === 0) return;
+  const items = Object.entries(cart).map(([name, i]) => [name, i.qty, i.price]);
+  const o = {id:nextId, table:7, status:'new', placedAt:Date.now(), note:$('#order-note').value.trim(), items, fresh:true};
+  orders.unshift(o);
+  myOrderId = nextId; myOrderServed = false; nextId++;
+  ordersToday++;
+  cart = {}; $('#order-note').value = '';
+  renderCart(); renderKitchen(); renderCashier(); renderTracker();
+  $('#tracker-oid').textContent = '#' + o.id;
+  $('#tick-sub').textContent = 'Order #' + o.id + ' · Table 7. Watch it move in the Kitchen tab.';
+  $('#sheet-main').style.display = 'none';
+  $('#tickwrap').classList.add('show');
+  $('#kitchendot').classList.add('show');
+});
+
+/* ---------- guest: tracker ---------- */
+function renderTracker(){
+  if (!myOrderId) return;
+  $('#tracker').classList.add('show');
+  const o = orders.find(x => x.id === myOrderId);
+  const st = o ? o.status : 'served';
+  const order = ['new','cooking','ready','served'];
+  const idx = order.indexOf(st);
+  $$('#tracker .tstep').forEach(el => {
+    const i = order.indexOf(el.dataset.ts);
+    el.classList.toggle('done', i < idx || st === 'served');
+    el.classList.toggle('now', i === idx && st !== 'served');
+  });
+  $('#tracker-title').textContent =
+    st === 'new' ? 'Order received by the kitchen' :
+    st === 'cooking' ? 'Your food is cooking' :
+    st === 'ready' ? 'Ready · being brought to your table' : 'Served. Enjoy your meal.';
+}
+
+/* ---------- kitchen ---------- */
+const rank = {new:0, cooking:1, ready:2};
+function renderKitchen(){
+  const live = orders.filter(o => o.status !== 'served').sort((a, b) => rank[a.status] - rank[b.status] || a.placedAt - b.placedAt);
+  $('#ks-new').textContent = orders.filter(o => o.status === 'new').length;
+  $('#ks-cooking').textContent = orders.filter(o => o.status === 'cooking').length;
+  $('#ks-ready').textContent = orders.filter(o => o.status === 'ready').length;
+  $('#emptyboard').classList.toggle('show', live.length === 0);
+  $('#board').innerHTML = live.map(o => {
+    const btn = o.status === 'new' ? '<button class="oact accept" data-kact="' + o.id + '">Accept order · গ্রহণ করুন</button>'
+      : o.status === 'cooking' ? '<button class="oact readyb" data-kact="' + o.id + '">Mark ready · তৈরি</button>'
+      : '<button class="oact servedb" data-kact="' + o.id + '">Mark served · পরিবেশন করুন</button>';
+    return '<article class="ocard st-' + o.status + (o.fresh ? ' fresh' : '') + '">' +
+      '<div class="oh"><div><div class="ot">Table ' + o.table + '</div><div class="oid">ORDER #' + o.id + ' · ' + o.items.reduce((s,i)=>s+i[1],0) + ' ITEMS</div></div>' +
+      '<span class="timer" data-timer="' + o.placedAt + '">0:00</span></div>' +
+      '<div class="oitems">' + o.items.map(i => '<div class="oitem"><span class="q">' + i[1] + '×</span><span>' + i[0] + '</span></div>').join('') + '</div>' +
+      (o.note ? '<div class="onote"><b>Note:</b> ' + o.note.replace(/</g,'&lt;') + '</div>' : '') + btn + '</article>';
+  }).join('');
+  live.forEach(o => o.fresh = false);
+  $('#donestrip').innerHTML = '<span class="dl">SERVED THIS HOUR</span>' + servedLog.slice(0, 6).map(s => {
+    const [id, tb] = s.split(' · ');
+    return '<span class="donechip"><b>' + id + '</b> · ' + tb + '</span>';
+  }).join('');
+  tickTimers();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-kact]');
+  if (!b) return;
+  const o = orders.find(x => x.id === +b.dataset.kact);
+  if (!o) return;
+  if (o.status === 'new') { o.status = 'cooking'; toast('Table ' + o.table + ' · order #' + o.id + ' accepted, now cooking'); }
+  else if (o.status === 'cooking') { o.status = 'ready'; toast('Table ' + o.table + ' · order #' + o.id + ' is ready to serve'); }
+  else if (o.status === 'ready') {
+    o.status = 'served';
+    o.items.forEach(i => tables[o.table].bill.push(i));
+    if (tables[o.table].st === 'ordering') tables[o.table].st = 'ontable';
+    servedLog.unshift('#' + o.id + ' · Table ' + o.table);
+    orders = orders.filter(x => x.id !== o.id);
+    if (o.id === myOrderId) myOrderServed = true;
+    toast('Table ' + o.table + ' served · added to their bill');
+    renderCashier();
+  }
+  renderKitchen(); renderTracker();
+});
+
+/* ---------- cashier ---------- */
+const stLabel = {free:'Free', ordering:'Ordering', ontable:'On the table', you:'Guest · you'};
+function renderCashier(){
+  const occ = Object.values(tables).filter(t => t.st !== 'free').length;
+  const openTotal = Object.values(tables).reduce((s, t) => s + subOf(t.bill) + vatOf(subOf(t.bill)), 0);
+  $('#cs-sales').textContent = fmt(sales);
+  $('#cs-orders').textContent = ordersToday;
+  $('#cs-occ').innerHTML = occ + '<span style="font-size:16px;color:var(--dim)"> / 12</span>';
+  $('#cs-open').textContent = fmt(openTotal);
+  $('#tables').innerHTML = Object.entries(tables).map(([n, t]) => {
+    const tot = subOf(t.bill);
+    return '<button class="ttile' + (+n === selTable ? ' sel' : '') + '" data-table="' + n + '" data-st="' + t.st + '">' +
+      '<div class="tn">' + n + '</div>' +
+      '<div class="ts"><span class="d"></span>' + stLabel[t.st] + '</div>' +
+      '<div class="tt2' + (tot ? '' : ' zero') + '">' + (tot ? fmt(tot + vatOf(tot)) : 'no bill') + '</div></button>';
+  }).join('');
+  renderReceipt();
+}
+function renderReceipt(){
+  const t = tables[selTable];
+  const sub = subOf(t.bill), vat = vatOf(sub), grand = sub + vat;
+  const head = '<div class="rh"><div class="rn2">Smash N <span>Stack</span></div><div class="rs">Burgers · House 5, Road 36, Gulshan 2 · Table ' + selTable + '</div></div>' +
+    '<div class="rt"><span>DINEDESK BILL</span><span>' + new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + '</span></div>';
+  if (!t.bill.length) {
+    $('#receipt').innerHTML = head + '<div class="nobill">No open bill on Table ' + selTable + '.<br>Served items land here on their own, straight from the kitchen board.</div>';
+    return;
+  }
+  $('#receipt').innerHTML = head +
+    t.bill.map(l => '<div class="rline"><span>' + l[0] + ' <span class="rq">× ' + l[1] + '</span></span><span class="rp">' + fmt(l[1] * l[2]) + '</span></div>').join('') +
+    '<div class="rtot"><div class="tr2"><span>Subtotal</span><span class="mono">' + fmt(sub) + '</span></div>' +
+    '<div class="tr2"><span>VAT 5%</span><span class="mono">' + fmt(vat) + '</span></div>' +
+    '<div class="grand"><span>Total</span><span class="mono">' + fmt(grand) + '</span></div></div>' +
+    '<div class="payrow">' + ['Cash','bKash','Card'].map(m => '<button class="paychip' + (m === payMethod ? ' on' : '') + '" data-pay="' + m + '">' + m + '</button>').join('') + '</div>' +
+    '<button class="closebtn" id="close-bill">Close bill · বিল বন্ধ করুন</button>' +
+    '<div class="qrpay"><img src="assets/qr-table7.png" alt="Payment QR code"><div class="qt"><b>Or the guest pays by scan.</b><br>bKash and cards settle against this exact bill. The payment is verified with the provider before the table closes, never from a screenshot.</div></div>';
+  $$('#receipt [data-pay]').forEach(c => c.addEventListener('click', () => { payMethod = c.dataset.pay; renderReceipt(); }));
+  $('#close-bill').addEventListener('click', () => {
+    sales += grand;
+    tables[selTable] = {st:'free', bill:[]};
+    if (selTable === 7 && myOrderServed) { myOrderId = null; $('#tracker').classList.remove('show'); }
+    toast('Table ' + selTable + ' bill closed · ' + fmt(grand) + ' · ' + payMethod);
+    renderCashier();
+  });
+}
+document.addEventListener('click', e => {
+  const tile = e.target.closest('[data-table]');
+  if (tile) { selTable = +tile.dataset.table; renderCashier(); }
+  const chip = e.target.closest('[data-cat]');
+  if (chip) {
+    $$('.catchip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    const el = $('#sec-' + chip.dataset.cat);
+    $('#pscroll').scrollTo({top: el.offsetTop - 64, behavior:'smooth'});
+  }
+});
+
+/* ---------- timers + clock ---------- */
+function tickTimers(){
+  const now = Date.now();
+  $$('[data-timer]').forEach(el => {
+    const s = Math.max(0, Math.floor((now - +el.dataset.timer) / 1000));
+    el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    el.classList.toggle('warn', s >= 480 && s < 720);
+    el.classList.toggle('late', s >= 720);
+  });
+}
+function tickClock(){
+  $('#clock').textContent = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+setInterval(() => { tickTimers(); tickClock(); }, 1000);
+tickClock();
+
+renderCart(); renderKitchen(); renderCashier();
+</script>
+</body>
+</html>
