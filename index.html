@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DineDesk Demo — Smash N Stack Burgers</title>
+<title>Tebil Demo — Smash N Stack Burgers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -258,7 +258,7 @@ h2,h3,h4,.wordmark,.kstat .kv,.ocard .ot,.ttile .tn,.receipt .rn2,.tickwrap .tt2
 <body>
 
 <header class="topbar">
-  <div class="wordmark"><span class="sq"></span>DineDesk <small>DEMO</small></div>
+  <div class="wordmark"><span class="sq"></span>Tebil <small>DEMO</small></div>
   <nav class="tabs">
     <button class="tab on" data-view="guest">Guest <span class="bn">অতিথি</span></button>
     <button class="tab" data-view="kitchen">Kitchen <span class="bn">রান্নাঘর</span><span class="dot" id="kitchendot"></span></button>
@@ -459,7 +459,7 @@ h2,h3,h4,.wordmark,.kstat .kv,.ocard .ot,.ttile .tn,.receipt .rn2,.tickwrap .tt2
 </main>
 
 <div class="footline">
-  <span>DineDesk demo, built for Smash N Stack Burgers, Gulshan 2. Menu items and prices are illustrative; every number on this page is fake and resets on reload.</span>
+  <span>Tebil demo, built for Smash N Stack Burgers, Gulshan 2. Menu items and prices are illustrative; every number on this page is fake and resets on reload.</span>
   <span>Logo: Smash N Stack · Photos: Unsplash · One product, three screens, one order.</span>
 </div>
 
@@ -668,7 +668,7 @@ function renderReceipt(){
   const t = tables[selTable];
   const sub = subOf(t.bill), vat = vatOf(sub), grand = sub + vat;
   const head = '<div class="rh"><img class="rlogo" src="assets/logo.jpg" alt="Smash N Stack logo"><div class="rn2">Smash N Stack</div><div class="rs">Burgers · House 5, Road 36, Gulshan 2 · Table ' + selTable + '</div></div>' +
-    '<div class="rt"><span>DINEDESK BILL</span><span>' + new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + '</span></div>';
+    '<div class="rt"><span>TEBIL BILL</span><span>' + new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + '</span></div>';
   if (!t.bill.length) {
     $('#receipt').innerHTML = head + '<div class="nobill">No open bill on Table ' + selTable + '.<br>Served items land here on their own, straight from the kitchen board.</div>';
     return;
